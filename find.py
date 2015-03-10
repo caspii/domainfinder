@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 import subprocess
+import sys
+import shutil
+
+# Check whether whois command is available
+try:
+	subprocess.check_output(["whois","google.com"])
+except OSError:
+	print('ERROR: whois command not found. \n\tIs it installed? Are you using Linux?')
+	sys.exit()
 
 suffixes = []
 prefixes = []
@@ -59,5 +68,6 @@ for domain in domains:
 		# Exception means that the domain is free
 		print('\tFREE')
 		f.write(domain + '\n')
+	
 f.close()
 print("DONE!")
