@@ -47,7 +47,7 @@ for pre in prefixes:
 
 
 # 3. Get list of domains that have aleady found to be free
-checkeddomains= [line.strip() for line in open('output.txt')] # Strip out newlines too
+checkeddomains= [line.strip() for line in open('free-domains.txt')] # Strip out newlines too
 
 # 4. Remove domains that were already found to be free
 for remove in checkeddomains:
@@ -58,7 +58,7 @@ for remove in checkeddomains:
 
 
 # 5. Check list of domains and write to file
-f = open('output.txt', 'r+')
+f = open('free-domains.txt', 'r+')
 for domain in domains:
 	print(' Checking: ' + domain), # Comma means no newline is printed	
 	try:
