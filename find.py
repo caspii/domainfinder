@@ -1,21 +1,20 @@
 #!/usr/bin/env python
-import subprocess
+from time import sleep
 import sys
-import shutil
-
-# Check whether whois command is available
 try:
-	subprocess.check_output(["whois","google.com"])
-except OSError:
-	print('ERROR: whois command not found. \n\tIs it installed? Are you using Linux?')
-	sys.exit()
+	import whois
+except ImportError:
+	print "ERROR: This script requires the python-whois module to run."
+	print "   You can install it via 'pip install python-whois'"
+	sys.exit(0)
 
+# CONFIG. Change top-level domain to check here
+TLD = '.co.uk'
+
+# 1. Get prefixes and suffixes from input.txt
 suffixes = []
 prefixes = []
-
 readingPrefixes = False
-
-# 1. Get prefixes and suffixes and put them into arrays
 f = open('input.txt')
 for l in f:
 	line = l.strip()
@@ -38,7 +37,7 @@ f.close()
 domains	=[]
 for pre in prefixes:
 	for suff in suffixes:
-		domains.append( pre + suff + ".io")
+		domains.append( pre + suff + TLD)
 
 # 3. Get list of domains that have aleady found to be free and removed them
 checkeddomains= [line.strip() for line in open('free-domains.txt')] # Strip out newlines too
@@ -48,17 +47,17 @@ for remove in checkeddomains:
 	except ValueError:
 		pass # Ignore exceptions
 
-
 # 4. Check list of domains and write to file
 for domain in domains:
+	sleep(0.5) # Too many requests lead to incorrect responses
 	print(' Checking: ' + domain), # Comma means no newline is printed
 	try:
-		result = subprocess.check_output(["whois", domain])
+		w = whois.whois(domain)
 		print('\tTAKEN')
-	except subprocess.CalledProcessError:
-		f = open('free-domains.txt', 'r+')
+	except whois.parser.PywhoisError:
 		# Exception means that the domain is free
 		print('\tFREE')
+		f = open('free-domains.txt', 'a')
 		f.write(domain + '\n')
 		f.close()
 print("DONE!")
