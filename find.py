@@ -8,8 +8,8 @@ except ImportError:
 	print "   You can install it via 'pip install python-whois'"
 	sys.exit(0)
 
-# CONFIG. Change top-level domain to check here
-TLD = '.co.uk'
+# Change top-level domain to check here
+TLD = '.com'
 
 # 1. Get prefixes and suffixes from input.txt
 suffixes = []
@@ -26,7 +26,6 @@ for l in f:
 		continue
 	elif not line:
 		continue # Ignore empty lines
-
 	if readingPrefixes:
 		prefixes.append(line)
 	else:
