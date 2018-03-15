@@ -4,8 +4,8 @@ import sys
 try:
 	import whois
 except ImportError:
-	print "ERROR: This script requires the python-whois module to run."
-	print "   You can install it via 'pip install python-whois'"
+	print("ERROR: This script requires the python-whois module to run.")
+	print("   You can install it via 'pip install python-whois'")
 	sys.exit(0)
 
 # Change top-level domain to check here
