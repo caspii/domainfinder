@@ -1,25 +1,74 @@
-Domainfinder
-============
-This is a Python script for generating domain names by taking a list of prefixes
-and joining then with a list of suffixes. It then checks if they are free and
-writes the results to a file.
+# Domainfinder
+Domainfinder is a Python script that generates domain names by combining prefixes and suffixes, then checks their availability. It's a useful tool for anyone looking to find unique domain names for their projects.
 
-For example, if you only have the prefix **ilove** and the two suffixes, **money** and **myself**, then the script will check if the following domains are free:
+## Features
+
+Generates domain names from user-defined prefixes and suffixes
+* Checks domain availability using WHOIS lookup
+* Saves free domains to a file for easy reference
+* Supports custom top-level domains (TLDs)
+* Command-line interface for easy customization
+
+## Requirements
+
+Python 3.6+
+python-whois module
+
+## Installation
+
+Clone the repository:
+1. `git clone https://github.com/caspii/domainfinder.git`
+2. `cd domainfinder`
+3. Install the required module:
+`pip install python-whois`
+
+## Usage
+
+Edit the `input.txt` file:
+
+* Add your desired prefixes under the --prefixes section
+* Add your desired suffixes under the --suffixes section
+
+
+Run the script:
+`python find.py`
+
+Optional: Customize the script execution with command-line arguments:
+
+`python find.py --tld .com --input custom_input.txt --output available_domains.txt`
+
+## Example
+
+If your `input.txt` contains:
+
 ```
-ilovemoney.com
-iloveymyself.com
+--prefixes
+ilove
+--suffixes
+money
+myself
 ```
-Requires the ``python-whois`` module to be installed.
+The script will check the availability of:
 
-# Howto
-1. Checkout the code: `git clone git@github.com:caspii/domainfinder.git`
+* ilovemoney.com
+* ilovemyself.com
 
-2. Create your own inputs:
-   * Open the file `input.txt`. You’ll see that it contains a section titled _–prefixes_ and one called _–suffixes_.
-   * Simply edit these sections as you see fit, taking care not to delete the actual section titles.
+## Output
 
-3. Run the command `/find.py` and the script will take the inputs you specified and begin checking which domains are free.
+The script will display the status of each domain check in the console.
+Free domains will be saved to free-domains.txt (or your specified output file).
 
-4. You’ll see the output as each domain is checked and the result in your console. All free domains are saved into a file called `free-domains.txt` for later perusal.
+## Advanced Usage
+You can customize the script's behavior using command-line arguments:
 
-Also see here: http://casparwre.de/blog/finding-a-domain/
+```
+--tld: Specify a custom top-level domain (default: .com)
+--input: Use a custom input file (default: input.txt)
+--output: Specify a custom output file for free domains (default: free-domains.txt)
+```
+
+Example:
+`python find.py --tld .org --input my_inputs.txt --output available_org_domains.txt`
+
+## Additional Resources
+For more information on domain finding strategies, check out this blog post: [Finding a Domain](http://casparwre.de/blog/finding-a-domain/)

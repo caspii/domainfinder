@@ -1,62 +1,87 @@
 #!/usr/bin/env python
-from time import sleep
+import argparse
 import sys
+from time import sleep
+import logging
+from pathlib import Path
+
 try:
-	import whois
+    import whois
 except ImportError:
-	print("ERROR: This script requires the python-whois module to run.")
-	print("   You can install it via 'pip install python-whois'")
-	sys.exit(0)
+    print("ERROR: This script requires the python-whois module to run.")
+    print("   You can install it via 'pip install python-whois'")
+    sys.exit(1)
 
-# Change top-level domain to check here
-TLD = '.com'
 
-# 1. Get prefixes and suffixes from input.txt
-suffixes = []
-prefixes = []
-readingPrefixes = False
-f = open('input.txt')
-for l in f:
-	line = l.strip()
-	if line == '--prefixes':
-		readingPrefixes = True
-		continue
-	elif line == '--suffixes':
-		readingPrefixes = False
-		continue
-	elif not line:
-		continue # Ignore empty lines
-	if readingPrefixes:
-		prefixes.append(line)
-	else:
-		suffixes.append(line)
-f.close()
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Check domain availability")
+    parser.add_argument("--tld", default=".com", help="Top-level domain to check")
+    parser.add_argument("--input", default="input.txt", help="Input file path")
+    parser.add_argument("--output", default="free-domains.txt", help="Output file path")
+    return parser.parse_args()
 
-# 2. create list of domains from prefixes and suffixes
-domains	=[]
-for pre in prefixes:
-	for suff in suffixes:
-		domains.append( pre + suff + TLD)
 
-# 3. Get list of domains that have aleady found to be free and removed them
-checkeddomains= [line.strip() for line in open('free-domains.txt')] # Strip out newlines too
-for remove in checkeddomains:
-	try:
-		domains.remove(remove)
-	except ValueError:
-		pass # Ignore exceptions
+def read_input_file(file_path):
+    prefixes, suffixes = [], []
+    reading_prefixes = False
 
-# 4. Check list of domains and write to file
-for domain in domains:
-	sleep(0.5) # Too many requests lead to incorrect responses
-	print(' Checking: ' + domain), # Comma means no newline is printed
-	try:
-		w = whois.whois(domain)
-		print('\tTAKEN')
-	except whois.parser.PywhoisError:
-		# Exception means that the domain is free
-		print('\tFREE')
-		f = open('free-domains.txt', 'a')
-		f.write(domain + '\n')
-		f.close()
-print("DONE!")
+    try:
+        with open(file_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line == '--prefixes':
+                    reading_prefixes = True
+                elif line == '--suffixes':
+                    reading_prefixes = False
+                elif line:
+                    if reading_prefixes:
+                        prefixes.append(line)
+                    else:
+                        suffixes.append(line)
+    except IOError as e:
+        logging.error(f"Error reading input file: {e}")
+        sys.exit(1)
+
+    return prefixes, suffixes
+
+
+def generate_domains(prefixes, suffixes, tld):
+    return [f"{pre}{suff}{tld}" for pre in prefixes for suff in suffixes]
+
+
+def read_checked_domains(file_path):
+    try:
+        with open(file_path, 'r') as f:
+            return set(line.strip() for line in f)
+    except IOError:
+        return set()
+
+
+def check_domains(domains, output_file):
+    with open(output_file, 'a') as f:
+        for domain in domains:
+            sleep(0.5)  # Basic rate limiting
+            logging.info(f"Checking: {domain}")
+            try:
+                whois.whois(domain)
+                logging.info(f"{domain} is TAKEN")
+            except whois.parser.PywhoisError:
+                logging.info(f"{domain} is FREE")
+                f.write(f"{domain}\n")
+
+
+def main():
+    args = parse_arguments()
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+
+    prefixes, suffixes = read_input_file(args.input)
+    domains = generate_domains(prefixes, suffixes, args.tld)
+    checked_domains = read_checked_domains(args.output)
+    domains_to_check = [d for d in domains if d not in checked_domains]
+
+    check_domains(domains_to_check, args.output)
+    logging.info("DONE!")
+
+
+if __name__ == "__main__":
+    main()
