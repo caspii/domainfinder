@@ -61,7 +61,6 @@ def check_domains(domains, output_file):
     with open(output_file, 'a') as f:
         for domain in domains:
             sleep(0.5)  # Basic rate limiting
-            logging.info(f"Checking: {domain}")
             try:
                 whois.whois(domain)
                 logging.info(f"{domain} is TAKEN")
