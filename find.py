@@ -18,6 +18,7 @@ def parse_arguments():
     parser.add_argument("--tld", default=".com", help="Top-level domain to check")
     parser.add_argument("--input", default="input.txt", help="Input file path")
     parser.add_argument("--output", default="free-domains.txt", help="Output file path")
+    parser.add_argument("--checked", default="checked-domains.txt", help="File to track all checked domains")
     return parser.parse_args()
 
 
@@ -57,16 +58,18 @@ def read_checked_domains(file_path):
         return set()
 
 
-def check_domains(domains, output_file):
-    with open(output_file, 'a') as f:
+def check_domains(domains, output_file, checked_file):
+    with open(output_file, 'a') as f, open(checked_file, 'a') as c:
         for domain in domains:
             sleep(0.5)  # Basic rate limiting
             try:
                 whois.whois(domain)
                 logging.info(f"{domain} is TAKEN")
+                c.write(f"{domain}\n")
             except whois.parser.PywhoisError:
                 logging.info(f"{domain} is FREE")
                 f.write(f"{domain}\n")
+                c.write(f"{domain}\n")
 
 
 def main():
@@ -75,10 +78,10 @@ def main():
 
     prefixes, suffixes = read_input_file(args.input)
     domains = generate_domains(prefixes, suffixes, args.tld)
-    checked_domains = read_checked_domains(args.output)
+    checked_domains = read_checked_domains(args.checked)
     domains_to_check = [d for d in domains if d not in checked_domains]
 
-    check_domains(domains_to_check, args.output)
+    check_domains(domains_to_check, args.output, args.checked)
     logging.info("DONE!")
 
 
