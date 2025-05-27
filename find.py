@@ -63,8 +63,13 @@ def check_domains(domains, output_file, checked_file):
         for domain in domains:
             sleep(0.5)  # Basic rate limiting
             try:
-                whois.whois(domain)
-                logging.info(f"{domain} is TAKEN")
+                result = whois.whois(domain)
+                # Check if domain is available by looking at key fields
+                if result.domain_name is None or not result.domain_name:
+                    logging.info(f"{domain} is FREE")
+                    f.write(f"{domain}\n")
+                else:
+                    logging.info(f"{domain} is TAKEN")
                 c.write(f"{domain}\n")
             except whois.parser.PywhoisError:
                 logging.info(f"{domain} is FREE")
