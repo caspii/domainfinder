@@ -68,13 +68,17 @@ def check_domains(domains, output_file, checked_file):
                 if result.domain_name is None or not result.domain_name:
                     logging.info(f"{domain} is FREE")
                     f.write(f"{domain}\n")
+                    f.flush()
                 else:
                     logging.info(f"{domain} is TAKEN")
                 c.write(f"{domain}\n")
+                c.flush()
             except whois.parser.PywhoisError:
                 logging.info(f"{domain} is FREE")
                 f.write(f"{domain}\n")
+                f.flush()
                 c.write(f"{domain}\n")
+                c.flush()
 
 
 def main():
