@@ -2,3 +2,5 @@ free-domains.txt
 .idea
 input.txt
 checked-domains.txt
+__pycache__/
+*.pyc
